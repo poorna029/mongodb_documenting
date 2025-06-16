@@ -1,4 +1,4 @@
-# inserting a document into a collection 
+# inserting document/s into a collection 
 _we have three methods :_
 - insertOne()
 
