@@ -656,7 +656,7 @@ const allValues = await cursor.toArray();
 
 
 
-For official docs - [docs](https://www.mongodb.com/docs/manual/crud/)
+For official docs - [click here](https://www.mongodb.com/docs/manual/crud/)
 
 
 
