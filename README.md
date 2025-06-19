@@ -946,6 +946,87 @@ The replaced document contains the contents of the replacement document and the 
 }
 ```
 
+### findOneAndUpdate() :
+findOneAndUpdate() is a smart hybrid method. It searches for one document, applies an update,
+ and returns the document — either before or after the update — depending on your choice.
+
+```js
+db.collection.findOneAndUpdate(
+  <filter>,
+  <update>,
+  {
+    returnDocument: "after" | "before", // What version to return
+    upsert: true | false,              // Insert if not found
+    sort: { field: 1/-1 },             // If multiple match, which one?
+    projection: { field: 1/0 },        // Which fields to return?
+  }
+)
+```
+
+```js
+db.users.findOneAndUpdate(
+  { name: "Ravi" },
+  { $set: { status: "active" } },
+  { returnDocument: "after" }
+)
+``` 
+
+what it does :
+
+Finds user with name Ravi
+
+Sets their status to “active”
+
+Returns the updated document(after)
+
+
+
+### findOneAndReplace() :
+
+findOneAndReplace() is a MongoDB operation that:
+
+Finds one document using a filter
+
+Replaces it entirely with a new document
+
+Returns the document (before or after replacement)
+
+It’s atomic at the document level, and behaves much like a surgical transplant — you don't just bandage a wound (like $set), you replace the whole organ (document), but keep the ID, identity, and structure intact.
+
+```js
+db.collection.findOneAndReplace(
+  <filter>,
+  <replacementDocument>,
+  {
+    returnDocument: "before" | "after",
+    projection: { field: 1 },
+    upsert: true | false,
+    sort: { field: 1/-1 }
+  }
+)
+```
+example 
+```js
+db.users.findOneAndReplace(
+  { username: "poorna" },
+  {
+    username: "poorna",
+    fullName: "Poorna S.",
+    email: "poorna@email.com",
+    active: true,
+    roles: ["admin", "writer"]
+  },
+  { returnDocument: "after" }
+)
+```
+**note:** use upsert if you want 
+
+- Underused, but incredibly powerful
+
+- Best when you're in full control of the replacement structure
+
+- A clean, atomic way to bring a document into a new life
+
 ## Update Arrays in a Document
 
 - Positional Operator: $
