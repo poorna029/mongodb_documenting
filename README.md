@@ -1027,6 +1027,109 @@ db.users.findOneAndReplace(
 
 - A clean, atomic way to bring a document into a new life
 
+### findAndModify() :
+
+```js
+db.collection.findAndModify({
+  query: { ... },           // What to find
+  sort: { field: 1 },       // If multiple matches, sort to pick one
+  update: { $set: { ... } },// What to change
+  remove: false,            // true = delete instead of update
+  new: true                 // true = return updated doc; false = return original
+})
+```
+
+
+example :
+
+```js
+db.tokens.findAndModify({
+  query: { token: "abc123", used: false },
+  update: { $set: { used: true, usedAt: new Date() } },
+  new: true
+})
+```
+
+🔍 What it does:
+Finds an unused token
+
+Marks it as used
+
+Returns the updated version
+
+✅ Use case:
+Coupons
+
+Password reset links
+
+Invite tokens
+
+```js
+[
+  {
+    "_id": ObjectId("a1"),
+    "task": "sendWelcomeEmail",
+    "createdAt": ISODate("2025-06-18T09:00:00Z")
+  },
+  {
+    "_id": ObjectId("a2"),
+    "task": "processPayment",
+    "createdAt": ISODate("2025-06-18T09:05:00Z")
+  },
+  {
+    "_id": ObjectId("a3"),
+    "task": "sendReminder",
+    "createdAt": ISODate("2025-06-18T09:10:00Z")
+  }
+]
+```
+
+```js
+
+db.jobs.findAndModify({
+  query: {},                        // Match all jobs
+  sort: { createdAt: 1 },           // Pick the oldest one
+  remove: true                      // Delete it
+})
+
+```
+🧠 What This Command Does:
+query: {} — matches all jobs
+
+sort: { createdAt: 1 } — sorts by createdAt ascending, so oldest first
+
+remove: true — deletes the document instead of updating it
+
+Returns the deleted document
+
+```js
+{
+  "_id": ObjectId("a1"),
+  "task": "sendWelcomeEmail",
+  "createdAt": ISODate("2025-06-18T09:00:00Z")
+}
+```
+
+ This was the oldest job, so it got removed and returned.
+
+ job queue after operation was the below array 
+ 
+
+ ```js
+ [
+  {
+    "_id": ObjectId("a2"),
+    "task": "processPayment",
+    "createdAt": ISODate("2025-06-18T09:05:00Z")
+  },
+  {
+    "_id": ObjectId("a3"),
+    "task": "sendReminder",
+    "createdAt": ISODate("2025-06-18T09:10:00Z")
+  }
+]
+```
+
 ## Update Arrays in a Document
 
 - Positional Operator: $
