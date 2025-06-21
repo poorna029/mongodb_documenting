@@ -1363,6 +1363,15 @@ The update multiplied the quantity value by 2 for items that matched the criteri
 }
 ```
 
+# deleting document/s from collection 
+
+- db.collection.remove() - 
+- db.collection.deleteOne()
+- db.collection.deleteMany()
+- db.collection.findOneAndDelete()
+- db.collection.findAndModify()
+
+
 
 For official docs - [click here](https://www.mongodb.com/docs/manual/crud/)
 
