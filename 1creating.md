@@ -11,10 +11,112 @@ _we have three methods :_
 
 ### using insertOne method -> 
 
+
+syntax :
+
+```js
+
+db.collection.insertOne(
+  <document>,
+  {
+    writeConcern: <document>,
+    bypassDocumentValidation: <boolean>,
+    comment: <string>
+  }
+)
+
+```
+### writeConcern (document):
+Once upon a time, databases were naive. A command like remove() would delete data as soon as it could, and declare victory. But what if the server crashed before writing to disk? Or before informing replicas? Or before ensuring the change was permanent?
+
+_That’s where writeConcern was born_
+
+writeConcern is like a gauranty that , the command was executed successfully in most of replica sets and servers,
+writeConcern consists of 3 things :
+- w (write quorum) : How many nodes must see this deletion? :
+    - "majority" → Make sure most of the replica set saw it.
+
+    - 1 → Just the primary is enough.
+
+- j (journaling) : Should this deletion be on disk, not just in memory ? :
+    - true → Wait till it’s physically journaled to disk.
+
+    - false → It’s enough if it’s in RAM.
+
+- wtimeout : “How long are you willing to wait for this confirmation?”
+    - 5000 means, “I’ll wait 5 seconds, then assume failure if it’s still pending.” 
+
+| Concept         | Meaning                               | Analogy                                     |
+| --------------- | ------------------------------------- | ------------------------------------------- |
+| `w: "majority"` | Require quorum of nodes               | “Most teammates saw it”                     |
+| `j: true`       | Ensure data is written to disk        | “Put it in a physical notebook”             |
+| `wtimeout`      | Time limit for getting a confirmation | “If they don’t reply in 5s, assume failure” |
+
+
+typical writeConcern document example :
+
+```js
+{ w: "majority", j: true, wtimeout: 5000 }
+
+```
+
+### bypassDocumentValidation :
+
+When you define a schema validation rule for your collection (like with $jsonSchema), MongoDB will check that all inserted documents comply.
+
+Set this to true to skip those checks for the current operation
+
+
+```js
+db.users.insertOne(
+  { username: "admin", role: "superuser" },
+  { bypassDocumentValidation: true }
+)
+```
+
+⚠️ Warning:
+Skipping validation is dangerous unless used by internal tools or migration scripts. Do not use in public-facing routes unless controlled.
+
+
+
+
+### comment :
+The comment field allows you to attach a custom string to the operation. This shows up in logs and monitoring tools.
+
+Use it to trace, audit, or debug operations
+
+example :
+
+```js
+db.users.insertOne(
+  { name: "Aarav" },
+  { comment: "User registration from India region" }
+)
+```
+| Use Case                       | Example Comment                    |
+| ------------------------------ | ---------------------------------- |
+| Monitoring specific operations | `"inserting high-value customer"`  |
+| Debugging API flow             | `"insert from /register endpoint"` |
+| Performance audit              | `"batch insert check"`             |
+
+
+
 ```js
 example to insert one document to a collection:
 
-db.collectionName.insertOne({name:"exampleName",age:25,gender:"M"})
+db.students.insertOne(
+  {
+    name: "Ishita",
+    age: 22,
+    dept: "Physics"
+  },
+  {
+    writeConcern: { w: "majority", j: true },
+    bypassDocumentValidation: false,
+    comment: "student registration form"
+  }
+)
+
 ```
 
 - using insertOne method we can only insert one document at a time to a collection 
