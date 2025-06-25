@@ -1,6 +1,6 @@
 # deleting document/s from collection 
 
-- db.collection.remove() - 
+- db.collection.remove() - legacy method , removed from native driver method , but existed in shell commands
 - db.collection.deleteOne()
 - db.collection.deleteMany()
 - db.collection.findOneAndDelete()
@@ -255,6 +255,12 @@ hint: { userId: 1, orderDate: 1 }
 ```
 
 _Boom! The query sped up 10× and stopped timing out under load._
+
+## db.collection.deleteMany() :
+
+
+
+
 
 
 
