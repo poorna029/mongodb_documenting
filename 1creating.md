@@ -145,6 +145,12 @@ db.collection.insertMany(
 ### ordered : boolean 
 default value is true for ordered property 
 
+| Setting | Meaning                                              | Default |
+| ------- | ---------------------------------------------------- | ------- |
+| `true`  | Stops at the **first error** (like transaction mode) | ✅ Yes   |
+| `false` | **Continues** even if some inserts fail              | ❌ No    |
+
+
 writeConcern , bypassDocumentation , comment is same as insertOne method 
 
 
