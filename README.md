@@ -1573,7 +1573,7 @@ In a European HR system, deleteOne({ name: "resume" }) deleted both "resume" and
 because of a loose collation.
 
 In an Indian school portal, "Ram" ≠ "RAM" caused duplicate student accounts. They fixed it by using collation: { locale: "en", strength: 2 } on deleteOne() and find().
-if suppose student registers as Ram and teacher enrolls with RAM , so mismatch when deleting 
+if suppose student registers as Ram and teacher enrolls with RAM , so mismatch when deleting and duplicates while creating
 
 In an eCommerce platform, collation mismatches created customer confusion when names like "Søren" and "Soren" were treated separately.
 
