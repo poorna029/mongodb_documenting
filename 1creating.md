@@ -20,6 +20,7 @@ db.collectionName.insertOne({name:"exampleName",age:25,gender:"M"})
 - using insertOne method we can only insert one document at a time to a collection 
 - we have to pass a document to the method 
 - you can manage you own _id's or mongodb creates _id 
+- if there is no collection with the name we intended to insert the data , mongodb will create a collection with that name and inserts data .
 
 
 
