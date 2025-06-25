@@ -30,6 +30,7 @@
 
 - to filter the documents based on our requirement we have to 
 - pass filter object or condition , returns documents if the condition is satisfied 
+- it returns in the form of batch of documents i.e.,cursor , a pointer of result set of query to access each document at once preventing memory overload and  improving performance 
 
 ```js 
 db.collectionName.find({gender:"male"})
