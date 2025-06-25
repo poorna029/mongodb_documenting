@@ -203,34 +203,78 @@ n this guide, you can learn how to use the Node.js driver to perform bulk operat
 
 You can also run bulk operations from the client, which allows you to perform bulk writes across multiple namespaces. In MongoDB, a namespace consists of the database name and the collection name in the format <database>.<collection>.
 
-```js
-const insertModels = [{
-    insertOne: {
-        document: {
-            title: "The Favourite",
-            year: 2018,
-            rated: "R",
-            released: "2018-12-21"
-        }
-    }
-}, {
-    insertOne: {
-        document: {
-            title: "I, Tonya",
-            year: 2017,
-            rated: "R",
-            released: "2017-12-08"
-        }
-    }
-}];
+syntax :
 
-const insertResult = await movies.bulkWrite(insertModels);
-console.log(`Inserted documents: ${insertResult.insertedCount}`);
+```js
+db.collection.bulkWrite(
+  [ <operation1>, <operation2>, ... ],
+  {
+    ordered: <boolean>,
+    writeConcern: <document>,
+    comment: <string>
+  }
+)
 ```
 
+Each operation must be one of:
+
+- insertOne
+
+- updateOne
+
+- updateMany
+
+- deleteOne
+
+- deleteMany
+
+- replaceOne
 
 
 
+```js
+const insertModels = [
+    {
+      insertOne: {
+        document: {
+          item: "pen",
+          qty: 50,
+          location: "Delhi"
+        }
+      }
+    },
+    {
+      updateMany: {
+        filter: { item: "pen" },
+        update: { $inc: { qty: 10 } }
+      }
+    },
+    {
+      deleteOne: {
+        filter: { qty: { $lt: 5 } }
+      }
+    },
+    {
+      replaceOne: {
+        filter: { item: "pencil" },
+        replacement: {
+          item: "pencil",
+          qty: 100,
+          location: "Mumbai"
+        }
+      }
+    }
+  ];
+  const options = 
+  {
+    ordered: false,
+    writeConcern: { w: "majority", j: true },
+    comment: "bulk inventory update"
+  };
+
+const insertResult = await movies.bulkWrite(insertModels,options);
+console.log(`Inserted documents: ${insertResult.insertedCount}`);
+```
 
 
 
