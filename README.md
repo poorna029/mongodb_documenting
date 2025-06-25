@@ -1623,6 +1623,10 @@ _Boom! The query sped up 10× and stopped timing out under load._
 ## db.collection.deleteMany() :
 
 
+stay tuned for continuation 
+
+
+
 
 
 
