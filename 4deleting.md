@@ -258,19 +258,6 @@ _Boom! The query sped up 10× and stopped timing out under load._
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
 | **Feature**                           | **`remove()`**                                   | **`deleteOne()`**                   | **`deleteMany()`**                  | **`findOneAndDelete()`**                                          | **`findAndModify()` (with remove)**                                       |
 | ------------------------------------- | ------------------------------------------------ | ----------------------------------- | ----------------------------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------------- |
 | 🧠 **Purpose**                        | Deletes one or many documents based on filter.   | Deletes **one** matching document.  | Deletes **all** matching documents. | Finds one doc and deletes it **atomically**, returns deleted doc. | Finds one doc, can **update or remove** it, returns modified/deleted doc. |
