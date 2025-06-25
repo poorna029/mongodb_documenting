@@ -1582,7 +1582,7 @@ always loose is not too good , even strict is not . **be conscious while using**
 
 
 
-### hint (documetn /string) 
+### hint (document /string) 
 
 even though you have created indexes , sometime mongodb uses collection scan while taking more time causing performance issues ,
 if there are multiple index choices , it may take wrong ones or none , becuase of confusion . so we have to say explicitly , we have control over that
