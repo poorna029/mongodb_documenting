@@ -129,13 +129,58 @@ db.students.insertOne(
 ## insertMany
 
 ### using insertMany method -> 
+syntax :
+```js
+db.collection.insertMany(
+  [ <document1>, <document2>, ... ],
+  {
+    ordered: <boolean>,
+    writeConcern: <document>,
+    bypassDocumentValidation: <boolean>,
+    comment: <string>
+  }
+)
+```
+
+### ordered : boolean 
+default value is true for ordered property 
+
+writeConcern , bypassDocumentation , comment is same as insertOne method 
+
 
 ```js
-db.collectionName.insertMany([
-    {name:"ram",age:20,gender:"male"},
-    {name:"rashmika", gender:"female"},
-    {name:"rahul",age:24}
-]);
+db.users.insertMany(
+  [
+    {
+      name: "Aarav",
+      email: "aarav@example.com",
+      country: "India",
+      age: 22
+    },
+    {
+      name: "Sofia",
+      email: "sofia@example.com",
+      country: "Spain",
+      age: 29
+    },
+    {
+      name: "Li Wei",
+      email: "liwei@example.com",
+      country: "China",
+      age: 25
+    }
+  ],
+  {
+    ordered: false,  // Even if one document fails, insert the rest
+    writeConcern: {
+      w: "majority", // Wait until majority of replica set confirms
+      j: true        // Confirm write has been committed to journal
+    },
+    bypassDocumentValidation: false, // Enforce schema validation
+    comment: "Bulk user import from marketing signup" // Helpful for monitoring/log tracing
+  }
+)
+
 ```
 
 - using insertMany we can pass multiple documents at a time 
