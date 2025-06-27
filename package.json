@@ -1,0 +1,16 @@
+{
+  "name": "mongo_docs",
+  "version": "1.0.0",
+  "description": "_we have three methods :_\r - insertOne()",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@faker-js/faker": "^9.8.0",
+    "mongodb": "^6.17.0"
+  }
+}
