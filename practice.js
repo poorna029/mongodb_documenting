@@ -132,9 +132,7 @@ const con = require("./index");
     let sfq6 = await users.find({$and:[{createdAt:{$lt:now}},{createdAt:{$gt:thirty_days_ago}}] }).sort({createdAt:-1}).limit(5);
     // let sfq6 = await users.find({$and:[{createdAt:{$lt:new Date()}},{createdAt:{$gt:new Date(new Date().getTime()-30*24*60*60*1000)}}] }).sort({createdAt:-1}).limit(5);
     console.log(await sfq6.toArray());
-                                 
-    }
-    // completed()
+
 
 
     // 7)List all category names
@@ -143,6 +141,97 @@ const con = require("./index");
     console.log(sfq7);
     const sfq7_v2 = await categories.aggregate([{$group:{_id:"$name"}},{$project:{_id:0,name:"$_id"}}]);
     console.log(await sfq7_v2.toArray())
+    const sfq7_v3 = await categories.aggregate([
+                                                {
+                                                    $group: {
+                                                      _id: null,
+                                                      names: { $addToSet: "$name" }
+                                                    }
+                                                  },
+                                                  {
+                                                    $project: {
+                                                      _id: 0,
+                                                      names: 1
+                                                    }
+                                                  }
+                                                ]);
+    console.log(await sfq7_v3.toArray());
+                                 
+    }
+    // completed()
+
+    // 8) Find products in "Electronics" category
+
+    const sfq8 = await products.aggregate([{$lookup:{from:"categories",localField:"categoryId",foreignField:"_id",as:"e_products"}},
+                                           {$match:{"e_products.0":{$exists:true}}},
+                                          //  {$unwind: "$e_products"},
+                                           {$match:{"e_products.name":"Electronics"}},
+                                           {$project:{name:1,categoryDescription:"$e_products.description",categoryName:"$e_products.name"}},
+                                           {$limit:2}
+                                          ]);
+      // lookup : which joins prodects and categories :
+
+            // "First, go to the products collection — that's our main list of items."
+            // "For each product, use its categoryId field to find a matching category in the categories collection."
+            // "Match the product’s categoryId with the _id of the category, and put the result into 
+            // a new field called e_products."
+
+      // match: do we need this filter ? -> {$match:{"e_products.0":{$exists:true}}} 
+            // actually no , only if there's always a perfect match of every product's categoryId that matches
+            // any one of the _id field in categories collection , but
+            // still it is a low cost safety check and heavy performance boost , best practice , 
+            // for now its alright everything , it catches up future possible mismatches if any
+      
+      // match : why {$match:{"e_products.name":"Electronics"}}
+            // 
+            // we only need products category of Electronics , so we used this match 
+            // can we use multiple , yes we can 
+
+
+
+      // result :  {
+                      // _id: new ObjectId('685e9641c9f627da9a3623be'),
+                      // name: 'Small Bronze Soap',
+                      // categoryDescription: [ 'Paens alter voveo subito repudiandae dolore trepide dolor.' ],
+                      // categoryName: [ 'Electronics' ]
+                // }
+      // here we are getting , categoryDescription and categoryName as array values now this is not good , so for this we use unwind 
+
+
+      // observation here , don't use unwind before {$match:{"e_products.0":{$exists:true}}},
+      // since e_products has no more arrays pipeline get 0 results
+
+      const sfq8_v2 = await products.aggregate([{$lookup:{from:"categories",localField:"categoryId",foreignField:"_id",as:"e_products"}},
+                                           {$match:{"e_products.0":{$exists:true}}},
+                                           {$unwind: "$e_products"},
+                                           {$match:{"e_products.name":"Electronics"}},
+                                           {$project:{name:1,categoryDescription:"$e_products.description",categoryName:"$e_products.name"}},
+                                           {$limit:2}
+                                          ]);
+
+
+      const sfq8_v3= await products.aggregate([{$lookup:{from:"categories",localField:"categoryId",foreignField:"_id",as:"e_products"}},
+                                           {$unwind: "$e_products"},
+                                           {$match:{"e_products.name":"Electronics"}},
+                                           {$project:{name:1,categoryDescription:"$e_products.description",categoryName:"$e_products.name"}},
+                                           
+                                           {$limit:2}
+                                          ]);
+      
+      while(await sfq8.hasNext()){
+        console.log(await sfq8.next());
+      }
+      console.log("***********************************************");
+      while(await sfq8_v2.hasNext()){
+        console.log(await sfq8_v2.next());
+      }
+      console.log("***********************************************");
+      while(await sfq8_v3.hasNext()){
+        console.log(await sfq8_v3.next());
+      }
+      
+
+    
     
 
 
