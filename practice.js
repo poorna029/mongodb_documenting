@@ -1,3 +1,9 @@
+//1) solution_for_question1 , we can write sfq1, rest same like sfq2,sfq3... 
+//2) since server and db calls are async calls, we can name
+// freind function and write answers one by one
+
+
+
 // ### **Basic Filtering & Counting**
 // 1. Count total number of users
 // 2. Count total number of products
@@ -10,9 +16,19 @@
 // 9. Count reviews with 5-star ratings
 // 10. Find all pending orders
 
-//1) solution_for_question1 , we can write sfq1, rest same like sfq2,sfq3... 
-//2) since server and db calls are async calls, we can name
-// freind function and write answers one by one
+
+
+
+// 11. Count products by category
+// 12. Count orders by user
+// 13. Sum total amount of all orders
+// 14. Count reviews by rating
+// 15. Group users by creation year
+// 16. Count support tickets by status
+// 17. Group orders by month
+// 18. Count products by price range (0-50, 51-100, 100+)
+// 19. Count inventory items by stock level (0, 1-10, 11-50, 50+)
+// 20. Group payments by method
 
 const con = require("./index");
 
@@ -20,7 +36,7 @@ const con = require("./index");
 
  async function friend(){
     try{
-      const {orders,users,products,categories} = await con();
+      const {orders,users,products,categories,reviews} = await con();
 
         const completed = async () =>{
         // 1) Count total number of users
@@ -121,10 +137,10 @@ const con = require("./index");
                                             // { _id: null, count: 4 },
                                             // { _id: 'delivered', count: 499675 },
                                             // { _id: 'pending', count: 499043 }
-                                          // ]
+                                            // ]
 
     // 6)Find users created in the last 30 days
-
+    
     let now = new Date();
     let thirty_days_ago = new Date(now);
     thirty_days_ago.setDate(now.getDate()-30);
@@ -156,9 +172,6 @@ const con = require("./index");
                                                   }
                                                 ]);
     console.log(await sfq7_v3.toArray());
-                                 
-    }
-    // completed()
 
     // 8) Find products in "Electronics" category
 
@@ -229,6 +242,41 @@ const con = require("./index");
       while(await sfq8_v3.hasNext()){
         console.log(await sfq8_v3.next());
       }
+
+      // 9) Count reviews with 5-star ratings
+      const sfq9 = await reviews.countDocuments({rating:5});
+
+      const sfq9_v2 = await reviews.aggregate([{$match:{rating:5}},{$group:{_id:"5 star rating",count:{$sum:1}}}]);
+
+      console.log(await sfq9);
+
+
+      // 10) Find all pending orders 
+
+      const sfq10 = await orders.find({status:"pending"})
+      
+      const sfq10_count = await orders.countDocuments({status:"pending"});
+
+      // while(await sfq10.hasNext()){
+      //   console.log(sfq10.next());
+      // }
+      console.log(await sfq10)
+                                 
+    }
+    // completed()
+
+    
+
+      // 11. Count products by category 
+
+      const sfq11 = await products.aggregate([{$group:{_id:"$categoryId",count:{$sum:1}}}]);
+      console.log(await sfq11.toArray())
+
+      const sfq11_v2 = await categories.aggregate([{$lookup:{from:"products",localField:"_id",foreignField:"categoryId",as :"arbitrary"}},{$group:{_id:"$name",count:{$sum:1}}}]);
+      console.log(await sfq11_v2.toArray());
+
+
+
       
 
     
