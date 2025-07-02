@@ -244,7 +244,7 @@ const con = require("./index");
       }
 
       // 9) Count reviews with 5-star ratings
-      const sfq9 = await reviews.countDocuments({rating:5});
+      const sfq9 = await reviews.countDocuments({rating:5}); 
 
       const sfq9_v2 = await reviews.aggregate([{$match:{rating:5}},{$group:{_id:"5 star rating",count:{$sum:1}}}]);
 
@@ -261,19 +261,78 @@ const con = require("./index");
       //   console.log(sfq10.next());
       // }
       console.log(await sfq10)
-                                 
-    }
-    // completed()
 
-    
 
       // 11. Count products by category 
 
       const sfq11 = await products.aggregate([{$group:{_id:"$categoryId",count:{$sum:1}}}]);
       console.log(await sfq11.toArray())
 
-      const sfq11_v2 = await categories.aggregate([{$lookup:{from:"products",localField:"_id",foreignField:"categoryId",as :"arbitrary"}},{$group:{_id:"$name",count:{$sum:1}}}]);
+      const sfq11_v2 = await categories.aggregate([{$lookup:{from:"products",localField:"_id",foreignField:"categoryId",as :"categorywise_products"}},
+        {$group:{_id:"$_id",name:{$first:"$name"},count:{$sum:{$size:"$categorywise_products"}}}},
+        {$project:{_id:0,name:1,count:1}},
+      {$sort:{name:1}}]);
+
+      // what i've learned here is if you want group and you don't want to miss each category name labelling , 
+      // you have to explicitly carryforward it like ,name:{$first:"$name"} whatever the name it encounters it carry farwards it
+      // otherwise it will remove the field 
+
       console.log(await sfq11_v2.toArray());
+       
+      // const sfq11_v3 = await products.aggregate([
+      //             { $group: { _id: "$categoryId", count: { $sum: 1 } } },
+      //             {
+      //               $lookup: {
+      //                 from: "categories",
+      //                 localField: "_id",
+      //                 foreignField: "_id",
+      //                 as: "category"
+      //               }
+      //             },
+      //             {
+      //               $project: {
+      //                 categoryName: { $arrayElemAt: ["$category.name", 0] },
+      //                 productCount: "$count",_id:0
+      //               }
+      //             }
+      //           ]);
+      // stage flow : 1) groups with categoryId and gives count of each category ,
+      //              2) lookup adds , category array corresponding to each id , in that array it consists data about categories collection id and name
+      //              3) now , projecting what we want , but categoryName is like getting direct name from an object within an array
+      //                 {$arrayEleAt:["required field",index]}
+
+      
+    const sfq11_v4 = await categories.aggregate([{$lookup:{from:"products",localField:"_id",foreignField:"categoryId",as : "product"}},
+                                // after this you will get _id : with each category , name : name of the category , product : array of matched products 
+                                // with respective categoyId of product with categories collection _id 
+                                {$addFields:{count:{$size:"$product"}}},
+                                // this give array size of different categoryId size respective product array 
+                                {$project:{_id:0,name:1,count:1}}
+
+                                ])
+                      // flow : 1) get number of products under one category , so we will get array within new field 
+                      //            2) add an extra field , which counts the array of product 
+                      //            3) prject require fields
+                                 
+    }
+    // completed()
+
+    // 12. Count orders by user
+
+    const sfq12 = await orders.aggregate([{$group:{_id:"$userId",count:{$sum:1}}}]);
+    
+    const sfq12_v2 = await orders.aggregate([{$group:{_id:"$userId",Ordercount:{$sum:1}}},
+                                              {$lookup:{from:"users",localField:"_id",foreignField:"_id",as :"order"}},
+                                              // here localfield , _id is not orderId , after aggregation _id will be userId 
+                                              {$project:{name:{$arrayElemAt:["$order.username",0]},email:{$arrayElemAt:["$order.email",0]},Ordercount:1}}
+    ])
+    
+
+      console.log(await sfq12_v2.toArray());
+    
+    
+    
+    
 
 
 
