@@ -274,7 +274,7 @@ const con = require("./index");
       {$sort:{name:1}}]);
 
       // what i've learned here is if you want group and you don't want to miss each category name labelling , 
-      // you have to explicitly carryforward it like ,name:{$first:"$name"} whatever the name it encounters it carry farwards it
+      // you have to explicitly carryforward it like ,name:{$first:"$name"} whatever the name it encounters first in the name field it carry farwards to next stage
       // otherwise it will remove the field 
 
       console.log(await sfq11_v2.toArray());
@@ -329,6 +329,7 @@ const con = require("./index");
     
 
       console.log(await sfq12_v2.toArray());
+      // 
     
     
     
