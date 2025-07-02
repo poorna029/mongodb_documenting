@@ -323,7 +323,7 @@ const con = require("./index");
     
     const sfq12_v2 = await orders.aggregate([{$group:{_id:"$userId",Ordercount:{$sum:1}}},
                                               {$lookup:{from:"users",localField:"_id",foreignField:"_id",as :"order"}},
-                                              // here localfield , _id is not orderId , after aggregation _id will be userId 
+                                              // here localfieldId(_id) is not orderId , after aggregation localfieldId(_id) will be userId 
                                               {$project:{name:{$arrayElemAt:["$order.username",0]},email:{$arrayElemAt:["$order.email",0]},Ordercount:1}}
     ])
     
