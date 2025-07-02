@@ -329,7 +329,12 @@ const con = require("./index");
     
 
       console.log(await sfq12_v2.toArray());
-      // 
+                                                  // [{
+                                              //   _id: new ObjectId('685e963ff7594f87e3d1c806'),
+                                              //   Ordercount: 11,
+                                              //   name: 'Russel_Pouros_10419',
+                                              //   email: 'cleta37@yahoo.com'
+                                              // },...many items]
     
     
     
