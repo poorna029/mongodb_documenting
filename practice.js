@@ -36,7 +36,7 @@ const con = require("./index");
 
  async function friend(){
     try{
-      const {orders,users,products,categories,reviews} = await con();
+      const {orders,users,products,categories,reviews,supporttickets,inventory} = await con();
 
         const completed = async () =>{
         // 1) Count total number of users
@@ -313,13 +313,11 @@ const con = require("./index");
                       // flow : 1) get number of products under one category , so we will get array within new field 
                       //            2) add an extra field , which counts the array of product 
                       //            3) prject require fields
-                                 
-    }
-    // completed()
 
     // 12. Count orders by user
 
     const sfq12 = await orders.aggregate([{$group:{_id:"$userId",count:{$sum:1}}}]);
+    
     
     const sfq12_v2 = await orders.aggregate([{$group:{_id:"$userId",Ordercount:{$sum:1}}},
                                               {$lookup:{from:"users",localField:"_id",foreignField:"_id",as :"order"}},
@@ -328,13 +326,148 @@ const con = require("./index");
     ])
     
 
-      console.log(await sfq12_v2.toArray());
-                                                  // [{
+    
+                                              // [{
                                               //   _id: new ObjectId('685e963ff7594f87e3d1c806'),
                                               //   Ordercount: 11,
                                               //   name: 'Russel_Pouros_10419',
                                               //   email: 'cleta37@yahoo.com'
                                               // },...many items]
+    
+
+    // 13) Sum total amount of all orders
+
+    const sfq13 = await orders.aggregate([{$group:{_id:null,total:{$sum:"$totalAmount"}}}]);
+
+    //    [ { _id: null, total: 5020658766.134685 } ]
+    
+
+    // 14) Count reviews by rating 
+
+    const sfq14 = await reviews.aggregate([{$group:{_id:"$rating",count:{$sum:1}}}]) ; 
+
+    console.log(await sfq14.toArray());//[
+                                          //   { _id: 4, count: 199874 },
+                                          //   { _id: 3, count: 200516 },
+                                          //   { _id: 2, count: 199929 },
+                                          //   { _id: 5, count: 200280 },
+                                          //   { _id: 1, count: 199401 }
+                                          // ]
+    // 15. Group users by creation year 
+
+                          //     const sfq15 = await users.aggregate([{$group:{_id:{$year:{date:"$createdAt"}},users:{$push:"$$ROOT"},count:{$sum:1}}},{
+                          //   $project: {
+                          //     year: "$_id",
+                          //     users: 1,
+                          //     count: 1,
+                          //     _id: 0
+                          //   }
+                          // }]);
+
+                          // const sfq15 = await users.aggregate([
+                          //   {
+                          //     $group: {
+                          //       _id: {$year: "$createdAt"},
+                          //       users: {$push: "$$ROOT"},
+                          //       count: {$sum: 1}
+                          //     }
+                          //   },
+                          //   {
+                          //     $project: {
+                          //       year: "$_id",
+                          //       users: 1,
+                          //       count: 1,
+                          //       _id: 0
+                          //     }
+                          //   }
+                          // ]);
+
+                          const sfq15 = await users.aggregate([
+                            {
+                              $group: {
+                                _id: {$year: "$createdAt"},
+                                count: {$sum: 1}
+                              }
+                            },
+                            {
+                              $project: {
+                                year: "$_id",
+                                count: 1,
+                                _id: 0
+                              }
+                            },
+                            {
+                              $sort: {year: 1}
+                            }
+                          ]);
+
+                          const sfq15_v2 = await users.aggregate([
+                            {
+                              $group: {
+                                _id: {$year: "$createdAt"},
+                                userNames: {$push: "$username"},
+                                count: {$sum: 1}
+                              }
+                            },
+                            {
+                              $project: {
+                                joined_year: "$_id",
+                                userNames: 1,
+                                count: 1,
+                                _id: 0
+                              }
+                            }
+                          ]);
+                              console.log(await sfq15_v2.toArray());
+                                                          
+                              }
+    // completed()
+    
+
+    // 16. Count support tickets by status 
+
+    const sfq16 = await supporttickets.aggregate([{$group:{_id:"$status",count:{$sum:1}}},{$project:{status:"$_id",_id:0,count:1}}])
+
+    // console.log(await sfq16.toArray());
+
+    // 17. Group orders by month
+
+    const sfq17 = await orders.aggregate([{$group:{_id:{year:{$year:"$createdAt"},month:{$month:"$createdAt"}},NoOfOrdersByMonth:{$sum:1},orderIDs:{$push:"$_id"}}},{$sort:{"_id.year":1,"_id.month":1}}]);
+    // console.log(await sfq17.toArray());
+
+    // 18. Count products by price range (0-50, 51-100, 100+)
+
+    const sfq18 = await products.aggregate([{$bucket:{groupBy:"$price",boundaries:[0,51,101,Infinity],default:"other",output:{count:{$sum:1}}}}]);
+    console.log(await sfq18.toArray());
+
+    // 19. Count inventory items by stock level (0, 1-10, 11-50, 50+) 
+
+    const sfq19 = await inventory.aggregate([{$bucket:{groupBy:"$stock",boundaries:[0,11,51,Infinity],default:"other",output:{count:{$sum:1}}}}]);
+    console.log(await sfq19.toArray());
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+
+    
+
+
+
+
     
     
     

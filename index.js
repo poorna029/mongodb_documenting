@@ -69,7 +69,7 @@ async function generateAll() {
 
     // Generate Users (100,000)
     const users = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       users.push({
         username: `${faker.internet.username()}_${i}`,
         email: faker.internet.email().toLowerCase(),
@@ -82,7 +82,7 @@ async function generateAll() {
     // Generate Products (100,000)
     const categoryIds = (await db.collection('categories').find({}, { projection: { _id: 1 } }).toArray()).map(c => c._id);
     const products = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       products.push({
         name: faker.commerce.productName(),
         description: faker.lorem.paragraph(),
@@ -96,7 +96,7 @@ async function generateAll() {
     // Generate Inventory (100,000)
     const productIds = (await db.collection('products').find({}, { projection: { _id: 1 } }).toArray()).map(p => p._id);
     const inventory = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       inventory.push({
         productId: productIds[i],
         stock: faker.number.int({ min: 0, max: 500 }), // Updated method
@@ -109,7 +109,7 @@ async function generateAll() {
     const userIds = (await db.collection('users').find({}, { projection: { _id: 1 } }).toArray()).map(u => u._id);
     const orders = [];
     const statuses = ['pending', 'shipped', 'delivered', 'cancelled'];
-    for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 100; i++) {
       orders.push({
         userId: userIds[Math.floor(Math.random() * userIds.length)],
         totalAmount: faker.number.float({ min: 20, max: 5000, precision: 0.01 }), // Updated method
@@ -123,7 +123,7 @@ async function generateAll() {
     const orderIds = (await db.collection('orders').find({}, { projection: { _id: 1 } }).toArray()).map(o => o._id);
     const productsWithPrices = await db.collection('products').find({}, { projection: { _id: 1, price: 1 } }).toArray();
     const orderItems = [];
-    for (let i = 0; i < 3000000; i++) {
+    for (let i = 0; i < 300; i++) {
       const product = productsWithPrices[Math.floor(Math.random() * productsWithPrices.length)];
       orderItems.push({
         orderId: orderIds[Math.floor(Math.random() * orderIds.length)],
@@ -136,7 +136,7 @@ async function generateAll() {
 
     // Generate Reviews (500,000)
     const reviews = [];
-    for (let i = 0; i < 500000; i++) {
+    for (let i = 0; i < 500; i++) {
       reviews.push({
         userId: userIds[Math.floor(Math.random() * userIds.length)],
         productId: productIds[Math.floor(Math.random() * productIds.length)],
@@ -149,7 +149,7 @@ async function generateAll() {
 
     // Generate Carts (100,000)
     const carts = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       const items = [];
       const itemCount = faker.number.int({ min: 1, max: 5 }); // Updated method
 
@@ -172,7 +172,7 @@ async function generateAll() {
 
     // Generate Addresses (100,000)
     const addresses = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       addresses.push({
         userId: userIds[Math.floor(Math.random() * userIds.length)],
         street: faker.location.streetAddress(), // Updated method
@@ -189,7 +189,7 @@ async function generateAll() {
     const payments = [];
     const methods = ['credit_card', 'paypal', 'bank_transfer'];
     const paymentStatuses = ['completed', 'pending', 'failed'];
-    for (let i = 0; i < 1000000; i++) {
+    for (let i = 0; i < 100; i++) {
       const order = ordersWithAmounts[i];
       payments.push({
         orderId: order._id,
@@ -204,7 +204,7 @@ async function generateAll() {
     // Generate Support Tickets (50,000)
     const tickets = [];
     const ticketStatuses = ['open', 'in_progress', 'closed'];
-    for (let i = 0; i < 50000; i++) {
+    for (let i = 0; i < 500; i++) {
       tickets.push({
         userId: userIds[Math.floor(Math.random() * userIds.length)],
         subject: faker.lorem.sentence(),
@@ -217,7 +217,7 @@ async function generateAll() {
 
     // Generate Wishlists (100,000)
     const wishlists = [];
-    for (let i = 0; i < 100000; i++) {
+    for (let i = 0; i < 100; i++) {
       const productCount = faker.number.int({ min: 1, max: 10 }); // Updated method
       const wishlistProductIds = [];
       for (let j = 0; j < productCount; j++) {
