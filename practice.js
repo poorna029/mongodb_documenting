@@ -483,14 +483,8 @@ const con = require("./index");
                    // [ { _id: 0, count: 2 },    (0-10)
                    // { _id: 11, count: 5 },     (11-50)
                    //  { _id: 51, count: 93 } ]  (51+)
-                                                          
-  }
-    // completed()
-    
 
-
-
-    // 20. Group payments by method : 
+  // 20. Group payments by method : 
 
     const sfq20 = await payments.aggregate([{$group:{_id:"$method",count:{$sum:1}}},{$project:{method:"$_id",count:1,_id:0}}]);
     // console.log(await sfq20.toArray());
@@ -913,6 +907,14 @@ const con = require("./index");
     
     // 26. Most recent 20 reviews 
 
+                                                          
+  }
+    // completed()
+    
+
+
+
+    
     const sfq26 = await reviews.find().sort({createdAt:-1}).limit(20);
     // console.log(await sfq26.toArray());
 
@@ -1023,7 +1025,151 @@ const con = require("./index");
                           //   createdAt: 2025-06-22T11:14:35.744Z
                           // },...]
     const sfq26_V2 = await reviews.aggregate([{$sort:{createdAt:-1}},{$limit:20}]);
-    console.log(await sfq26_V2.toArray());                          
+    // console.log(await sfq26_V2.toArray());  
+    
+    // 27. Find cheapest 15 products
+    // 28. Latest 10 support tickets
+    // 29. Find 5 users with most orders
+    // 30. Top 10 categories with most products
+
+    // 27. Find cheapest 15 products
+
+    const sfq27 = await products.find().sort({price:1}).limit(15);
+    // console.log(await sfq27.toArray());
+    /*
+                           [
+                            {
+                              _id: new ObjectId('68658dbbccda6db24eae17fb'),
+                              name: 'Handmade Steel Bike',
+                              description: 'Aggero asperiores acsi temporibus verbum valens. Victoria odit tergeo certe ipsa ademptio deserunt soleo defessus xiphias. Valeo deserunt tertius conculco contra.',
+                              price: 16.552300922663296,
+                              categoryId: new ObjectId('68658dbbccda6db24eae1786'),
+                              createdAt: 2023-11-19T22:18:47.907Z
+                            },
+                            {
+                              _id: new ObjectId('68658dbbccda6db24eae1850'),
+                              name: 'Handmade Steel Table',
+                              description: 'Bellicus territo vesica qui viduo deprimo universe hic. Deserunt capio defungo hic porro accusantium corrumpo molestiae. Minima vilitas tersus similique alius cui contego teres aspernatur.',
+                              price: 39.26968893174772,
+                              categoryId: new ObjectId('68658dbbccda6db24eae177d'),
+                              createdAt: 2024-03-11T05:19:51.454Z
+                            },
+                            
+                            ...,
+                            {
+                              _id: new ObjectId('68658dbbccda6db24eae184f'),
+                              name: 'Elegant Metal Mouse',
+                              description: 'Cicuta spoliatio bos vicissitudo tametsi cohors creo advenio. Vitae amplitudo audax coepi amoveo minima. Concedo aequus quo porro desidero unde abundans tertius.',
+                              price: 139.60838348334238,
+                              categoryId: new ObjectId('68658dbbccda6db24eae177c'),
+                              createdAt: 2024-02-17T05:22:33.748Z
+                            }
+                          ]
+    */
+   const sfq27_v2 = await products.aggregate([{$sort:{price:1}},{$limit:15}]);
+  //  console.log(await sfq27_v2.toArray()); output is same as above no change so i am not pasting answer , 
+  
+
+  // 28. Latest 10 support tickets
+
+  const sfq28 = await supporttickets.find().sort({createdAt:-1}).limit(10);
+  // console.log(await sfq28.toArray());
+  /*
+                             [
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae1d89'),
+                                  userId: new ObjectId('68658dbbccda6db24eae178d'),
+                                  subject: 'Centum sunt adflicto decerno aequitas cuius arcesso canto vis modi.',
+                                  description: 'Vae sol adeo cattus nisi tepesco comedo vobis vergo aperte. Beatae vergo sollicito dolores. Accendo cumque aggredior sufficio aegrotatio civis.',
+                                  status: 'closed',
+                                  createdAt: 2025-07-02T16:33:20.586Z
+                                },
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae1ea9'),
+                                  userId: new ObjectId('68658dbbccda6db24eae17cc'),
+                                  subject: 'Vos corporis clarus congregatio taedium amplus creber utor blanditiis cariosus.',
+                                  description: 'Delectatio sponte vicissitudo coadunatio. Defluo abundans officiis blanditiis. Validus volubilis ambitus vigilo dignissimos subito cupiditas defendo subnecto.',
+                                  status: 'in_progress',
+                                  createdAt: 2025-07-01T08:57:39.584Z
+                                },...,
+                                
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae1f08'),
+                                  userId: new ObjectId('68658dbbccda6db24eae178d'),
+                                  subject: 'Aliquid alioqui reprehenderit abbas tergum.',
+                                  description: 'Sol cetera triumphus cado ocer autus. Comis summisse dens auctor stabilis utrimque cena carmen suffragium cito. Audax peior denuncio vita totam sponte.',
+                                  status: 'closed',
+                                  createdAt: 2025-06-24T06:28:37.314Z
+                                }
+                              ]
+
+   */
+  const sfq28_v2 = await supporttickets.aggregate([{$sort:{createdAt:-1}},{$limit:10}]);
+  // console.log(await sfq28_v2.toArray());
+
+  // i am not posting , because there is no change in answer from the above answer
+
+  // 29. Find 5 users with most orders
+
+  const sfq29 = await users.aggregate([{$lookup:{from:"orders",localField:"_id",foreignField:"userId",as :"top_5_orders"}},{$addFields:{ordersCount:{$size:"$top_5_orders"}}},{$match:{ordersCount:{$gt:0}}},{$sort:{ordersCount:-1}},{$limit:5}]);
+  // console.log(await sfq29.toArray());
+  /* 
+                                [
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae17ab'),
+                                  username: 'Mason.Jerde96_32',
+                                  email: 'elmer_oconner35@yahoo.com',
+                                  passwordHash: 's8t0KZThtRGYXlxDO9Jn3fnsLMd6qMOCuTUfW2TUKNaLX5G6IVczkTGzIKjcTEjp',
+                                  createdAt: 2023-09-01T15:25:13.966Z,
+                                  top_5_orders: [ [Object], [Object], [Object] ],
+                                  ordersCount: 3
+                                },
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae1793'),
+                                  username: 'Pascale.Klocko5_8',
+                                  email: 'bertha1@gmail.com',
+                                  passwordHash: 'TaVdHfbbCYNebxGCnFDVHZW5Era54PXZvWfqyPCBg0Gh4LVRCIsmD7mqQDcpJc25',
+                                  createdAt: 2025-01-06T13:01:32.528Z,
+                                  top_5_orders: [ [Object], [Object], [Object] ],
+                                  ordersCount: 3
+                                },
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae17ba'),
+                                  username: 'Drew_Farrell45_47',
+                                  email: 'maritza.turner25@hotmail.com',
+                                  passwordHash: 'bKUjzYN2lc7wVjh6Nl4RQkWx6NLufN00YdbEvcNlFnDsCznrBEob7JfjUp0mTaRs',
+                                  createdAt: 2024-01-21T04:16:26.257Z,
+                                  top_5_orders: [ [Object], [Object], [Object] ],
+                                  ordersCount: 3
+                                },
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae17b3'),
+                                  username: 'Nya.Gleichner_40',
+                                  email: 'kari73@yahoo.com',
+                                  passwordHash: 'L42TarxFADqbKdNglLr4WihMoXr2oj3YWNngJzVlwAwIoTfY8y2SRJ3W9gTzRrxL',
+                                  createdAt: 2024-01-22T20:49:52.997Z,
+                                  top_5_orders: [ [Object], [Object], [Object] ],
+                                  ordersCount: 3
+                                },
+                                {
+                                  _id: new ObjectId('68658dbbccda6db24eae1798'),
+                                  username: 'Brendon.Pacocha11_13',
+                                  email: 'kieran_cummerata@yahoo.com',
+                                  passwordHash: 'klSjvWLc3ItaYUQvPFrZwjA4RW3zDjZuYnEcDo35FJkRZ5YIGT0oN3OghMuBm5Zi',
+                                  createdAt: 2024-11-28T18:04:09.944Z,
+                                  top_5_orders: [ [Object], [Object], [Object] ],
+                                  ordersCount: 3
+                                }
+                              ]
+
+  */
+  const sfq29_v2 = await orders.aggregate([]); 
+
+  
+
+
+
+
  
     
     
