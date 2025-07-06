@@ -907,14 +907,6 @@ const con = require("./index");
     
     // 26. Most recent 20 reviews 
 
-                                                          
-  }
-    // completed()
-    
-
-
-
-    
     const sfq26 = await reviews.find().sort({createdAt:-1}).limit(20);
     // console.log(await sfq26.toArray());
 
@@ -1035,6 +1027,7 @@ const con = require("./index");
     // 27. Find cheapest 15 products
 
     const sfq27 = await products.find().sort({price:1}).limit(15);
+
     // console.log(await sfq27.toArray());
     /*
                            [
@@ -1111,7 +1104,12 @@ const con = require("./index");
 
   // 29. Find 5 users with most orders
 
-  const sfq29 = await users.aggregate([{$lookup:{from:"orders",localField:"_id",foreignField:"userId",as :"top_5_orders"}},{$addFields:{ordersCount:{$size:"$top_5_orders"}}},{$match:{ordersCount:{$gt:0}}},{$sort:{ordersCount:-1}},{$limit:5}]);
+  const sfq29 = await users.aggregate([{$lookup:{from:"orders",localField:"_id",foreignField:"userId",as :"top_5_orders"}},
+                                       {$addFields:{ordersCount:{$size:"$top_5_orders"}}},
+                                       {$match:{ordersCount:{$gt:0}}},
+                                       {$sort:{ordersCount:-1}},
+                                       {$limit:5}
+                                      ]);
   // console.log(await sfq29.toArray());
   /* 
                                 [
@@ -1163,9 +1161,58 @@ const con = require("./index");
                               ]
 
   */
-  const sfq29_v2 = await orders.aggregate([]); 
+  const sfq29_v2 = await orders.aggregate([{$group:{_id:"$userId",count:{$sum:1}}},
+                                           {$lookup:{from:"users",localField:"_id",foreignField:"_id",as :"top_5_orders"}},
+                                           {$sort:{count:-1,"top_5_orders.username":1}},{$limit:5},
+                                           {$project:{_id:0,count:1,name:{$arrayElemAt:["$top_5_orders.username",0]}}}
+                                          ]);
+    
+    // console.log(await sfq29_v2.toArray()); 
+                                /*
+                                      [
+                                        { count: 3, name: 'Adah.Fay68_48' },
+                                        { count: 3, name: 'Brendon.Pacocha11_13' },
+                                        { count: 3, name: 'Carrie_Davis_63' },
+                                        { count: 3, name: 'Charles_Macejkovic_75' },
+                                        { count: 3, name: 'Drew_Farrell45_47' }
+                                      ]
+                                */
+    // Top 10 categories with most products
 
-  
+    const sfq30 = await products.aggregate([{$group:{_id:"$categoryId",count:{$sum:1}}},
+                                            {$sort:{count:-1}},
+                                            {$limit:10},
+                                            {$lookup:{from:"categories",localField:"_id",foreignField:"_id",as:"products_by_catgory"}},
+                                            {$project:{_id:0,name:{$arrayElemAt:["$products_by_catgory.name",0]},count:1}}
+                                          ]);
+    console.log(await sfq30.toArray());
+    /*
+                                [
+                              { count: 13, name: 'Pets' },
+                              { count: 13, name: 'Books' },
+                              { count: 10, name: 'Office Supplies' },
+                              { count: 8, name: 'Home & Kitchen' },
+                              { count: 8, name: 'Toys' },
+                              { count: 8, name: 'Automotive' },
+                              { count: 7, name: 'Electronics' },
+                              { count: 6, name: 'Health' },
+                              { count: 5, name: 'Beauty' },
+                              { count: 5, name: 'Jewelry' }
+                            ]
+     */
+
+
+                                                          
+  }
+    // completed()
+    
+
+
+
+    
+        
+
+    
 
 
 
