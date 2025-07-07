@@ -1205,6 +1205,48 @@ const con = require("./index");
                                                           
   }
     // completed()
+
+
+
+    /*
+    ### **Simple Projections**
+    31. Show only product names and prices
+    32. Display user emails and creation dates
+    33. Show order IDs and total amounts
+    34. List category names and descriptions
+    35. Show product names and categories
+    36. Display review ratings and comments
+    37. Show user usernames only
+    38. List order statuses and creation dates
+    39. Show product prices in descending order
+    40. Display support ticket subjects and statuses
+    */
+
+    // 31. Show only product names and prices
+    const sfq31_depricated  = await products.find({},{_id:0,name:1,price:1});
+    // in olden mongodb drivers it may work but , now this method is depricated 
+
+    const sfq31 = await products.aggregate([{$project:{_id:0,name:1,price:1}}]);
+    
+    const sfq31_v2 = await products.find({}).project({_id:0,name:1,price:1});
+
+    const sfq31_v3 = await products.aggregate([
+                                                {
+                                                  $replaceRoot: {
+                                                    newRoot: {
+                                                      name: "$name",
+                                                      price: "$price"
+                                                    }
+                                                  }
+                                                }
+                                              ]);
+    
+
+
+
+    
+
+
     
 
 
