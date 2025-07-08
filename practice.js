@@ -1200,15 +1200,9 @@ const con = require("./index");
                               { count: 5, name: 'Jewelry' }
                             ]
      */
+    
 
-
-                                                          
-  }
-    // completed()
-
-
-
-    /*
+                            /*
     ### **Simple Projections**
     31. Show only product names and prices
     32. Display user emails and creation dates
@@ -1230,16 +1224,103 @@ const con = require("./index");
     
     const sfq31_v2 = await products.find({}).project({_id:0,name:1,price:1});
 
-    const sfq31_v3 = await products.aggregate([
-                                                {
-                                                  $replaceRoot: {
-                                                    newRoot: {
-                                                      name: "$name",
-                                                      price: "$price"
-                                                    }
-                                                  }
-                                                }
-                                              ]);
+    const sfq31_v3 = await products.aggregate([{$replaceRoot:{newRoot:{name:"$name",price:"$price"}}} ]);
+
+    // 32. Display user emails and creation dates
+
+    const sfq32 = await users.find({}).project({_id:0,username:1,createdAt:1});
+    const sfq32_v2 = await users.aggregate([{$project:{_id:0,username:1,createdAt:1}}]);
+    const sfq32_v3 = await users.aggregate([{$replaceRoot:{newRoot:{username:"$username",createdAt:"$createdAt"}}}]);
+
+    const sfq32_v4 = await users.aggregate([{$facet:{"newDoc":[{$project:{_id:0,username:1,createdAt:1}}]}},{$unwind:"$newDoc"},{$replaceRoot:{newRoot:"$newDoc"}}]);
+
+    // console.log(await sfq32_v4.toArray());
+
+    // 33. Show order IDs and total amounts
+
+    const sfq33 = await orders.aggregate([{$project:{_id:0,orderId:"$_id",totalAmount:1}}]);
+    const sfq33_v2 = await orders.aggregate([{$addFields:{orderId:"$_id"}},{$unset:"_id"},{$project:{orderId:1,totalAmount:1}}]);
+    const sfq33_v3 = await orders.aggregate([{$set:{orderId:"$_id"}},{$unset:"_id"},{$project:{orderId:1,totalAmount:1}}]);
+    // console.log(await sfq33_v2.toArray());
+
+    // 34. List category names and descriptions
+    const sfq34 = await categories.aggregate([{$project:{_id:0,name:1,description:1}}]);
+    const sfq34_v2 = await categories.aggregate([{$replaceRoot:{newRoot:{name:"$name",description:"$description"}}}]);
+    const sfq34_v3 = await categories.find({}).project({_id:0,name:1,description:1});
+    const sfq34_v4 = await categories.aggregate([{$facet:{"newDoc":[{$project:{_id:0,name:1,description:1}}]}},{$unwind:"$newDoc"},{$replaceRoot:{newRoot:"$newDoc"}}])
+    // console.log(await sfq34_v4.toArray());
+
+    // 35. Show product names and categories
+    const sfq35 = await products.aggregate([{$lookup:{from:"categories",localField:"categoryId",foreignField:"_id",as :"prodName_catName"}},{$unwind:"$prodName_catName"},{$replaceRoot:{newRoot:{productName:"$name",category:"$prodName_catName.name"}}}]);
+    // console.log(await sfq35.toArray());
+
+    // 36. Display review ratings and comments
+
+    const sfq36 = await reviews.find({}).project({_id:0,rating:1,comment:1});
+    const sfq36_v2 = await reviews.aggregate([{$project:{_id:0,rating:1,comment:1}}]);
+    // console.log(await sfq36_v2.toArray());
+
+    // 37. Show user usernames only
+
+    const sfq37 = await users.find({}).project({_id:0,username:1});
+    const sfq37_v2 = await users.aggregate([{$project:{_id:0,username:1}}]);
+    // console.log(await sfq37_v2.toArray());
+
+    // 38. List order statuses and creation dates
+
+    const sfq38 = await orders.find({}).project({_id:0,status:1,createdAt:1});
+    const sfq38_v2 = await orders.aggregate([{$project:{_id:0,status:1,createdAt:1}}]);
+    // console.log(await sfq38_v2.toArray());
+
+    // 39. Show product prices in descending order
+
+    const sfq39 = await products.find({}).project({_id:0,price:1}).sort({price:-1});
+    const sfq39_v2 = await products.aggregate([{$project:{_id:0,price:1}}]);
+    // console.log(await sfq39.toArray());
+
+    // 40. Display support ticket subjects and statuses
+
+    const sfq40 = await supporttickets.find({}).project({_id:0,subject:1,status:1}).sort({price:-1});
+    const sfq40_v2 = await supporttickets.aggregate([{$project:{_id:0,subject:1,status:1}}]);
+    console.log(await sfq40_v2.toArray());
+
+                                                          
+  }
+    // completed()
+
+
+
+    
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+    
+
+
+
+    
+
+
+    
+
+
+    
     
 
 
