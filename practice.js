@@ -1288,6 +1288,58 @@ const con = require("./index");
   }
     // completed()
 
+    // ### **Date-based Queries**
+    // 41. Find orders created today
+    // 42. Count orders by day of week
+    // 43. Find products created this year
+    // 44. Users registered this month
+    // 45. Reviews posted in last 7 days
+    // 46. Orders placed in December
+    // 47. Products added in Q1
+    // 48. Support tickets opened this week
+    // 49. Payments made yesterday
+    // 50. Find users by registration month 
+
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    const tomorrow = new Date(today);
+    today.setDate(today.getDate()-20); // here i am taking 20 days back because i have populated the db around the same date 
+    tomorrow.setDate(tomorrow.getDate()+1);
+
+    const sfq41 = await orders.find({createdAt:{$gte:today,$lt:tomorrow}}).toArray();
+    const sfq41_v2 = await orders.aggregate([{$match:{$and:[{createdAt:{$gte:today}},{createdAt:{$lt:tomorrow}}]}}]).toArray();
+
+    // console.log(sfq41_v2 , sfq41);
+
+    // 42. Count orders by day of week 
+    const sfq42 = await orders.aggregate([{$project:{dayOfWeek:{$dayOfWeek:"$createdAt"},createdAt:1}},
+                                          {$group:{_id:"$dayOfWeek",count:{$sum:1}}},
+                                          {$addFields:{day:{$arrayElemAt:[["sun","mon","tue","wed","thu","fri","sat"],{$subtract:["$_id",1]}]}}}]).toArray();
+    // console.log(sfq42);
+
+
+    // 43. Find products created this year
+    const sfq43 = await products.aggregate([{$match:{createdAt:{$gte:new Date(new Date("2025").toISOString()),$lt:new Date(new Date("2026").toISOString())}}}]).toArray();
+    const sfq43_v2 = await products.find({createdAt:{$gte:new Date(new Date("2025").toISOString()),$lt:new Date(new Date("2026").toISOString())}}).toArray();
+    // console.log(sfq43_v2);
+
+    // 44. Users registered this month 
+
+
+    
+
+
+
+
+
+
+
+
+
+
+    
+
+
 
 
     
