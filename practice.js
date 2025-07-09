@@ -1323,7 +1323,60 @@ const con = require("./index");
     const sfq43_v2 = await products.find({createdAt:{$gte:new Date(new Date("2025").toISOString()),$lt:new Date(new Date("2026").toISOString())}}).toArray();
     // console.log(sfq43_v2);
 
-    // 44. Users registered this month 
+    // 44. Users registered this month
+    const start_date = new Date(new Date().getFullYear(),new Date().getMonth()-2,1);
+    const end_date = new Date(new Date().getFullYear(),new Date().getMonth()-1,1);
+    
+    const sfq44 = await users.find({createdAt:{$gte:start_date,$lt:end_date}}).toArray();
+    // console.log(sfq44);
+
+    // 45. Reviews posted in last 7 days
+
+    const seven_days_ago = new Date(Date.now()-7*24*60*60*1000);
+    const sfq45 = await reviews.find({createdAt:{$gte:seven_days_ago}}).toArray();
+    // console.log(sfq45);
+
+    // 46. Orders placed in December 
+    const sfq46 = await orders.find({$expr:{$and:[{$eq:[{$month : "$createdAt"},12]},{$eq:[{"$year":"$createdAt"},2024]}]}}).toArray();
+    // console.log(sfq46);
+
+    // 47. Products added in Q1 (jan,feb,mar)
+
+    const sfq47 = await products.find({$expr:{$in:[{$month:"$createdAt"},[1,2,3]]}}).sort({createdAt:1}).toArray();
+    // console.log(sfq47)
+
+    // 48. Support tickets opened this week  
+    const ten_days_ago = new Date(Date.now() - 10*24*3600*1000); // ten days because i run my db around 10 days ago
+    const sfq48 = await supporttickets.find({createdAt:{$gt:ten_days_ago}}).toArray();
+    // console.log(sfq48);
+
+    // 49. Payments made yesterday 
+
+    const yesterday = new Date("2025","5","29"); // i am taking yesterday as june 29 becuase i have only one record at the last date
+
+    const sfq49 = await payments.find({createdAt:{$gt:yesterday}}).toArray();
+    console.log(yesterday,sfq49);
+
+    // 50. Find users by registration month  
+
+    // const sfq50 = await users.aggregate([{$group:{_id:{$month:"$createdAt"}}},{$project:{}}]).toArray();
+    // console.log(sfq50);
+    // need to work on this
+
+    
+
+
+
+    
+
+
+    
+
+
+
+
+    
+    
 
 
     
