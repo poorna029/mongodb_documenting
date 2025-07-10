@@ -1355,12 +1355,16 @@ const con = require("./index");
     const yesterday = new Date("2025","5","29"); // i am taking yesterday as june 29 becuase i have only one record at the last date
 
     const sfq49 = await payments.find({createdAt:{$gt:yesterday}}).toArray();
-    console.log(yesterday,sfq49);
+    // console.log(yesterday,sfq49);
 
     // 50. Find users by registration month  
 
-    // const sfq50 = await users.aggregate([{$group:{_id:{$month:"$createdAt"}}},{$project:{}}]).toArray();
-    // console.log(sfq50);
+    const sfq50 = await users.aggregate([{$group:{_id:{$month:"$createdAt"},count:{$sum:1}}},
+                                         {$sort:{_id:1}},{$project:{month:{$arrayElemAt:[["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","now","dec"],{$subtract:["$_id",1]}]},count:1,_id:0}},
+                                         {$replaceRoot: {newRoot: { month: "$month", count: "$count"}}}
+                                        ]).toArray();
+                  
+    console.log(sfq50);
     // need to work on this
 
     
