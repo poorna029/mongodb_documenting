@@ -36,7 +36,7 @@ const con = require("./index");
 
  async function friend(){
     try{
-      const {orders,users,products,categories,reviews,supporttickets,inventory,payments} = await con();
+      const {orders,users,products,categories,reviews,supporttickets,inventory,payments,orderitems,carts} = await con();
 
         const completed = async () =>{
         // 1) Count total number of users
@@ -1284,11 +1284,7 @@ const con = require("./index");
     const sfq40_v2 = await supporttickets.aggregate([{$project:{_id:0,subject:1,status:1}}]);
     console.log(await sfq40_v2.toArray());
 
-                                                          
-  }
-    // completed()
-
-    // ### **Date-based Queries**
+     // ### **Date-based Queries**
     // 41. Find orders created today
     // 42. Count orders by day of week
     // 43. Find products created this year
@@ -1365,7 +1361,89 @@ const con = require("./index");
                                         ]).toArray();
                   
     console.log(sfq50);
-    // need to work on this
+
+                                                          
+  }
+    // completed()
+
+    // ### **Basic Calculations**
+    // 51. Calculate average product price
+    // 52. Find total revenue from all orders
+    // 53. Average order amount
+    // 54. Count total order items
+    // 55. Calculate average review rating
+    // 56. Sum all inventory stock
+    // 57. Average user age (if birth date available)
+    // 58. Total pending payments
+    // 59. Count active carts
+    // 60. Average items per order
+
+    // 51-60 solutions 
+
+    // Q)51. Calculate average product price
+    const sfq51 = await products.aggregate([{$group:{_id:null,avgPrice:{$avg:"$price"}}},
+                                            {$project:{avgPrice:1,_id:0}}
+                                          ]).next();
+    // console.log(sfq51);
+
+    // Q)52. Find total revenue from all orders
+    const sfq52 = await orders.aggregate([{$group:{_id:null,totalRevenue : {$sum:"$totalAmount"}}}]).next() ;
+    // console.log(sfq52);
+
+    // Q)53. Average order amount
+    const sfq53 = await orders.aggregate([{$group:{_id:null,avgOrderAmount:{$avg:"$totalAmount"}}}]).next() ;
+    // console.log(sfq53);
+
+    // Q)54. Count total order items
+    const sfq54 = await orderitems.aggregate([{$group:{_id:null,orderedItemsCount:{$sum:1}}},{$project:{_id:0}}]).next() ;
+    // console.log(sfq54);
+
+    // Q)56. Sum all inventory stock 
+    const sfq56 = await inventory.aggregate([{$group:{_id:null,totalStock:{$sum:"$stock"}}},{$project:{_id:0}}]).next() ;
+    // console.log(sfq56);
+
+    // Q)57. Average user age , no user age field existed 
+    // leaving 57 
+
+    // Q)58. Total pending payments
+    const sfq58 = await payments.countDocuments({status:"pending"});
+    console.log(sfq58);
+
+    // Q)59. Count active carts
+    const sfq59 = await carts.countDocuments({items:{$exists:true,$ne:[]}});
+    console.log(sfq59)
+
+    // 60. Average items per order 
+    
+
+
+
+    
+
+    
+
+
+    
+
+    
+
+
+
+
+
+
+    
+
+
+    
+
+    
+
+
+
+
+   
+    
 
     
 
