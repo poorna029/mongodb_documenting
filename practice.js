@@ -1416,9 +1416,6 @@ const con = require("./index");
                                             ]).next();
     // console.log(sfq60);
 
-                                                          
-  }
-    // completed()
     // ### **Simple Text Matching**
     // 61. Find products containing "phone" in name
     // 62. Users with "gmail" email addresses
@@ -1502,7 +1499,13 @@ const con = require("./index");
 
     // 68. Orders from users with "test" in username 
 
-    const sfq68 = await users.find({username:{$regex:"adah",$options:"i"}}).toArray(); // we dont have any name found with test so  , i took adah
+    const sfq68 = await orders.aggregate([{$lookup:{from:"users",localField:"userId",foreignField:"_id",as:"neww"}},
+                                          {$unwind:"$neww"},
+                                          {$match:{"neww.username":{$regex:"adah",$options:"i"}}},
+                                          {$project:{_id:1,"neww.username":1,"neww.email":1,status:1,totalAmount:1}},
+                                        ]).toArray();
+
+     // we dont have any name found with test so  , i took adah
     // console.log(sfq68);
 
     const sfq68_v2 = await users.find({username:/adah/i}).toArray();
@@ -1533,170 +1536,126 @@ const con = require("./index");
     // ----> Note : fo advance search use text indexing ,
     //              we can see in next session we will create indexing for faster search operations
 
-   
+        // For example we will take products collection and make it compound indexing 
+        // products collection has a structure of {_id,name,description,price,categoryId,createdAt}
 
+        // To use the $text operator, at least one field in the collection must have a text index.
+        // In this case, we create a text index on both the 'name' and 'description' fields.
 
+    // syntax is db.collections.createIndex({name:"text",description:"text"}); 
 
+    const response = await products.createIndex({name:"text",description:"text"});
 
+    // console.log(response); 
+                             //response => "name_text_description_text"
 
+    const response1 = await products.indexes(); // this command will get us what are the existing indexes on the collection
+    // console.log(response1);
 
+    /*   response1 =>   [
+                { v: 2, key: { _id: 1 }, name: '_id_' } ,
 
+                {
+                  v: 2,
+                  key: { _fts: 'text', _ftsx: 1 },
+                  name: 'name_text_description_text',
+                  weights: { description: 1, name: 1 },
+                  default_language: 'english',
+                  language_override: 'language',
+                  textIndexVersion: 3
+                }
+            ]
+    */
+    
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    // indexing applies even if you created collection few days ago 
+    // and now you created indexing on that collection then you can get indexing done on older and newer documents 
     
     
     
-
-    
-
-   
-    
-
-
-
-    
-
-    
-
-
-    
-
-    
-
-
-
-
-
-
-    
-
-
-    
-
-    
-
-
-
-
-   
-    
-
-    
-
-
-
-    
-
-
-    
-
-
-
-
+    // --------------------------------   +++++++++++++++++++++++   ---------------------------------------
     
     
-
-
     
-
-
-
-
-
-
-
-
-
-
+    // ### **Simple Text Matching** 
+    // 61. Find products containing "phone" in name
+    // 62. Users with "gmail" email addresses
+    // 63. Products with "sale" in description
+    // 64. Support tickets with "refund" in subject
+    // 65. Categories containing "Home"
+    // 66. Find users with username starting with "A"
+    // 67. Products ending with "Pro"
+    // 68. Orders from users with "test" in username
+    // 69. Reviews containing "excellent"
+    // 70. Addresses in "California"
     
+    // 61. Find products containing "phone" in name
+    const sfq61_v3 = await products.find({$text:{$search:"computer"}}).toArray();
+    // console.log(sfq61_v3);
+
+    // 62. Users with "gmail" email addresses -> not so much use with indexing to check email existing or not
+
+    // 63. Products with "sale" in description ,
+
+    const sfq63_v3 = await products.find({$text:{$search:"clam"}}).toArray();
+    // console.log(sfq63_v3);
+
+    // 64. Support tickets with "refund" in subject
+
+    const st_response = await supporttickets.createIndex({subject:"text",description:"text"});
+    // console.log(st_response);  
+    // st_response ==> subject_text_description_text
 
 
 
+    const sfq64_v3 = await supporttickets.find({$text:{$search:"minus"}}).toArray();
+    // console.log(sfq64_v3);
 
+    // 65. Categories containing "Home"
+
+    // since categories in any thing cant be in millions , so i am leaving it 
+
+    // 66. Find users with username starting with "A"
+
+    const users_tIndex = await users.createIndex({username:1});
+
+    // ------------ Note : regex is not supported by text indexing so we are creating normal indexing
+    // console.log(users_tIndex);
+      // users_tIndex  ==>   username_1
     
+    const sfq66_v3 = await users.find({username:/^A/i}).toArray();
+    // console.log(sfq66_v3);
 
+    // 67. Products ending with "Pro" 
+    // -------------------------------    Note : since we cannot perform regex on text based indexing 
+    //                                           we are skipping this
 
+    // 68. Orders from users with "test" in username
 
+    const sfq68_v3 = await orders.aggregate([{$lookup:{from:"users",localField:"userId",foreignField:"_id",as:"ord_users"}},
+                                             {$unwind:"$ord_users"},
+                                             {$match:{"ord_users.username":{$regex:"adah",$options:"i"}}},
+                                             {$project:{_id:1,status:1,totalAmount:1,"ord_users.username":1,"ord_users.email":1}} 
+                                            ]).toArray();
+    // console.log(sfq68_v3);
 
-    
+    // 69. Reviews containing "excellent" 
+    const reviews_tIndex = await reviews.createIndex({comment:"text"});
+    // console.log(reviews_tIndex);
 
+    const sfq69_v3 = await reviews.find({$text:{$search:"infit"}}).toArray();
+    // console.log(sfq69_v3);
 
+    // 70. Addresses in "California"
 
+    const addresses_tIndex = await addresses.createIndex({state:"text"});
+    // console.log(addresses_tIndex);
 
-
-
-
-
-
-
-
-
-    
-
-    
-
-
-
-    
-
-
-    
-
-
-    
-    
-
-
-
-    
-
-
-    
-
-
-
-    
-        
-
-    
-
-
-
-
- 
-    
-    
-                            
-    
-    
-
-
-
-
-    
-    
-
-    
-    
-
-
-
-    
-
-
-
+    const sfq70_v3 = await addresses.find({$text:{$search:"California"}}).toArray();
+    // console.log(sfq70_v3);
+                                                          
+  }
+    // completed()
     
 
 
@@ -1708,24 +1667,23 @@ const con = require("./index");
 
 
 
-    
-
-
-    
 
 
 
 
-    
-    
-    
-    
 
 
 
-      
 
-    
+
+
+
+
+
+
+
+
+
     
 
 
