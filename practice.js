@@ -36,7 +36,7 @@ const con = require("./index");
 
  async function friend(){
     try{
-      const {orders,users,products,categories,reviews,supporttickets,inventory,payments,orderitems,carts} = await con();
+      const {orders,users,products,categories,reviews,supporttickets,inventory,payments,orderitems,carts,addresses} = await con();
 
         const completed = async () =>{
         // 1) Count total number of users
@@ -1362,11 +1362,7 @@ const con = require("./index");
                   
     console.log(sfq50);
 
-                                                          
-  }
-    // completed()
-
-    // ### **Basic Calculations**
+     // ### **Basic Calculations**
     // 51. Calculate average product price
     // 52. Find total revenue from all orders
     // 53. Average order amount
@@ -1407,13 +1403,165 @@ const con = require("./index");
 
     // Q)58. Total pending payments
     const sfq58 = await payments.countDocuments({status:"pending"});
-    console.log(sfq58);
+    // console.log(sfq58);
 
     // Q)59. Count active carts
     const sfq59 = await carts.countDocuments({items:{$exists:true,$ne:[]}});
-    console.log(sfq59)
+    // console.log(sfq59)
 
     // 60. Average items per order 
+
+    const sfq60 = await orderitems.aggregate([{$group:{_id:null,avgOrders:{$avg:"$quantity"}}},
+                                              {$project:{_id:0,avgOrders:{$round:["$avgOrders",0]}}}
+                                            ]).next();
+    // console.log(sfq60);
+
+                                                          
+  }
+    // completed()
+    // ### **Simple Text Matching**
+    // 61. Find products containing "phone" in name
+    // 62. Users with "gmail" email addresses
+    // 63. Products with "sale" in description
+    // 64. Support tickets with "refund" in subject
+    // 65. Categories containing "Home"
+    // 66. Find users with username starting with "A"
+    // 67. Products ending with "Pro"
+    // 68. Orders from users with "test" in username
+    // 69. Reviews containing "excellent"
+    // 70. Addresses in "California"
+
+    // Q)61. Find products containing "phone" in name 
+
+    const sfq61 = await products.find({name:/computer/i}).toArray(); //phone is not there in the db so, instead used phone
+    // console.log(sfq61);
+
+    const sfq61_v2 = await products.find({name:{$regex:"computer",$options:"i"}}).toArray();
+    // console.log(sfq61_v2);
+
+    // Q)62. Users with "gmail" email addresses 
+
+    const sfq62 = await users.find({email:{$regex:"@gmail.com$",$options:"i"}}).toArray();
+    // console.log(sfq62);
+
+    const sfq62_v2 = await users.find({email:/@gmail.com$/i}).toArray();
+    // console.log(sfq62_v2);
+
+    // Note: in both sfq62 and sfq62_v2 both the questions in regex in the "$" indicates 
+    // it is checking whether it ends with the specified string or not
+
+    // Q)63. Products with "sale" in description
+
+    const sfq63 = await products.find({description:{$regex:"clam",$options:"i"}}).toArray(); //sale is not found in our db so small change
+    // console.log(sfq63);
+
+    const sfq63_v2 = await products.find({description:/clam/i}).toArray();
+    // console.log(sfq63_v2);
+
+
+
+    // Q)64. Support tickets with "refund" in subject
+    
+    const sfq64 = await supporttickets.find({subject:{$regex:"minus",$options:"i"}}).toArray(); // here in our db "refund" is not there so "minus"
+    // console.log(sfq64);
+    
+    const sfq64_v2 = await supporttickets.find({subject:/minus/i}).toArray();
+    // console.log(sfq64_v2);
+
+
+
+    // Q)65. Categories containing "Home"
+
+    const sfq65 = await categories.find({name:{$regex:"home",$options:"i"}}).toArray();
+    // console.log(sfq65);
+
+    const sfq65_v2 = await categories.find({name:/home/i}).toArray();
+    // console.log(sfq65_v2);
+
+
+
+    // Q)66. Find users with username starting with "A"
+
+    const sfq66 = await users.find({username:{$regex:"^A"}}).toArray();
+    // console.log(sfq66);
+
+    const sfq66_v2 = await users.find({username:/^A/i}).toArray();
+    // console.log(sfq66_v2);
+
+
+
+    // 67. Products ending with "Pro"
+
+    const sfq67 = await products.find({name:/^Inc/i}).toArray(); //in our db , products not found with "Pro" as starting so "Inc"
+    // console.log(sfq67);
+
+    const sfq67_v2 = await products.find({name:{$regex:"^Inc",$options:"i"}}).toArray();
+    // console.log(sfq67_v2);
+
+
+
+    // 68. Orders from users with "test" in username 
+
+    const sfq68 = await users.find({username:{$regex:"adah",$options:"i"}}).toArray(); // we dont have any name found with test so  , i took adah
+    // console.log(sfq68);
+
+    const sfq68_v2 = await users.find({username:/adah/i}).toArray();
+    // console.log(sfq68_v2);
+    
+
+
+
+    // 69. Reviews containing "excellent"
+
+    const sfq69 = await reviews.find({comment:/infit/i}).toArray(); // there is no match found with "excellent" so "infit"
+    // console.log(sfq69);
+
+    const sfq69_v2 = await reviews.find({comment:{$regex:"infit",$options:"i"}}).toArray();
+    // console.log(sfq69_v2);
+
+
+
+
+    // 70. Addresses in "California"
+
+    const sfq70 = await addresses.find({state:/california/i}).toArray();
+    // console.log(sfq70);
+
+    const sfq70_v2 = await addresses.find({state:{$regex:"california",$options:"i"}}).toArray();
+    // console.log(sfq70_v2);
+
+    // ----> Note : fo advance search use text indexing ,
+    //              we can see in next session we will create indexing for faster search operations
+
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    
+    
+
+    
+
+   
     
 
 
