@@ -36,7 +36,7 @@ const con = require("./index");
 
  async function friend(){
     try{
-      const {orders,users,products,categories,reviews,supporttickets,inventory,payments,orderitems,carts,addresses} = await con();
+      const {orders,users,products,categories,reviews,supporttickets,inventory,payments,orderitems,carts,addresses,wishlists} = await con();
 
         const completed = async () =>{
         // 1) Count total number of users
@@ -1656,6 +1656,110 @@ const con = require("./index");
                                                           
   }
     // completed()
+
+
+    // ### **Basic Exists/Not Exists**
+    // 71. Find products without descriptions
+    // 72. Users without addresses
+    // 73. Orders without payments
+    // 74. Products with inventory records
+    // 75. Users with reviews
+    // 76. Orders with order items
+    // 77. Products in wishlists
+    // 78. Users with support tickets
+    // 79. Categories with products
+    // 80. Addresses with postal codes
+
+    // Q) 71. Find products without descriptions
+
+    const sfq71 = await carts.aggregate([{$match:{items:{$exists:false}}}]).toArray();
+    // console.log(sfq71);
+    const sfq72 = await addresses.aggregate([{$lookup:{from:"users",localField:"userId",foreignField:"_id",as:"ord_users"}},
+                                             {$match:{ord_users:{$eq:[]}}}]).toArray();
+    // console.log(sfq72); 
+
+
+
+    // 73. Orders without payments
+
+    const sfq73 = await payments.aggregate([{$lookup:{from:"orders",localField:"orderId",foreignField:"_id",as:"paym_users"}},
+                                            {$match:{status:{$ne:"completed"}}},
+                                            {$unwind:"$paym_users"},
+                                            {$lookup:{from:"users",localField:"paym_users.userId",foreignField:"_id",as:"userOrders"}},
+                                            {$unwind:"$userOrders"},
+                                            {$lookup:{from:"orderitems",localField:"userOrders._id",foreignField:"orderId",as:"orders"}},
+                                            {$lookup:{from:"products",localField:"productId",foreignField:"productId",as:"products"}},
+                                            {$project:{paymentId:"$_id",_id:0,orderId:"$orderId",amount:1,payMode:"$method",
+                                             payment_status:"$status",order_status:"$paym_users.status",username:"$userOrders.username",emailId:"$userOrders.email",userId:"$userOrders._id",productName:"$products.name"}},
+                                            {$limit:1}
+                                          ]).toArray();
+    // console.log(sfq73);
+
+    // Q)74. Products with inventory records 
+
+    const sfq74 = await products.aggregate([{$lookup:{from:"orderitems",localField:"_id",foreignField:"productId",as:"orderItems"}},{$unwind:"$orderItems"},{$project:{_id:0,name:1,description:{$substr:["$description",0,20]},price:1,qty:"$orderItems.quantity",}},{$limit:4}]).toArray();
+    // console.log(sfq74);
+
+    // Q)75. Users with reviews
+
+    const sfq75 = await reviews.aggregate([{$lookup:{from:"users",localField:"userId",foreignField:"_id",as:"users"}},{$unwind:"$users"},{$match:{comment:{$ne:""}}},{$project:{username:"$users.username",comment:{$substr:["$comment",0,10]},_id:0}}]).toArray();
+    // console.log(sfq75)
+
+    // 76. Orders with order items
+
+    const sfq76 = await orders.aggregate([{$lookup:{from:"orderitems",localField:"_id",foreignField:"orderId",as:"orderitems"}}]).toArray();
+    // console.log(sfq76);
+
+
+
+    // 77. Products in wishlists 
+
+    const sfq77 = await wishlists.aggregate([{$unwind:"$productIds"},
+                                             {$lookup:{from:"products",localField:"productIds",foreignField:"_id",as:"productsInfo"}},{$unwind:"$productsInfo"},
+                                             {$project:{name:"$productsInfo.name"}}
+                                            ]).toArray();
+    // console.log(sfq77);
+
+    // Q)78. Users with support tickets
+
+    const sfq78 = await supporttickets.aggregate([{$lookup:{from:"users",localField:"userId",foreignField:"_id",as:"usersInfo"}},
+                                                  {$unwind:"$usersInfo"},
+                                                  {$project:{ticketId:"$_id",_id:0,subject:1,description:1,username:"$usersInfo.username"}}
+                                                 ]).toArray();
+    // console.log(sfq78);
+
+    
+
+    // 79. Categories with products 
+
+    // const sfq79 = await categories.aggregate([{$}])
+
+
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+
+
+
     
 
 
@@ -1684,7 +1788,7 @@ const con = require("./index");
 
 
 
-    
+
 
 
     
